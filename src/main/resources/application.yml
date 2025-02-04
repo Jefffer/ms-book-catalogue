@@ -4,17 +4,23 @@ spring:
   application:
     name: ms-book-catalogue
   datasource:
-    url: jdbc:h2:mem:catalogue
-    username: sa
-    password: password
+    url: jdbc:mysql://localhost:3306/catalogue?allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: root
   jpa:
     show-sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+  #
+  #h2:
+  #  console:
+  #    enabled: true
+  #    path: /h2-console
+  #    settings:
+  #      web-allow-others: true
 eureka:
   client:
     service-url:
