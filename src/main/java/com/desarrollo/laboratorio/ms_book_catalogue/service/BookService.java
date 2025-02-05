@@ -54,15 +54,15 @@ public class BookService {
         for (OrderDTO order : orders) {
             Optional<Book> bookOpt = bookRepository.findById(order.getBookId());
             if (bookOpt.isEmpty()) {
-                log.error("Book no encontrado con ID: " + order.getBookId());
+                log.error("Libro no encontrado con ID: " + order.getBookId());
                 return false;
             }
             Book book = bookOpt.get();
             if (book.getStock() < order.getQuantity()) {
-                log.error("Book sin stock ID: " + order.getBookId());
+                log.error("Libro sin stock ID: " + order.getBookId());
                 return false;
             } else if (!book.getVisible()) {
-                log.error("Book not visible ID: " + order.getBookId());
+                log.error("Libro no visible ID: " + order.getBookId());
                 return false;
             }
             book.setStock(book.getStock() - order.getQuantity());
