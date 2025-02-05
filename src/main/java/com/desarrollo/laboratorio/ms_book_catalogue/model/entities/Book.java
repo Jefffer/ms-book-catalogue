@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(length = 200) @NotEmpty
     private String title;
@@ -28,7 +28,7 @@ public class Book {
     @Column(length = 200) @NotEmpty
     private String author;
 
-    @NotEmpty
+
     private Timestamp publicationDate;
 
     @Column(length = 20) @NotEmpty
@@ -39,11 +39,25 @@ public class Book {
 
     private Double price;
 
+    @Min(1)
     private Integer stock;
 
-    @NotEmpty
+
     private Double rating;
 
-    @NotEmpty
+
     private Boolean visible;
+
+    public Book(String title, String author, String isbn, Timestamp publicationDate,
+                String category, Double price, Integer stock) {
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publicationDate = publicationDate;
+        this.category = category;
+        this.price = price;
+        this.stock = stock;
+        this.visible = true;
+        this.rating = 0.0;
+    }
 }

@@ -1,9 +1,11 @@
 package com.desarrollo.laboratorio.ms_book_catalogue.service;
 
 import com.desarrollo.laboratorio.ms_book_catalogue.exception.BookException;
+import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.BookDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.OrderDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.entities.Book;
 import com.desarrollo.laboratorio.ms_book_catalogue.repository.BookRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class BookService {
 
     @Autowired
@@ -25,8 +28,11 @@ public class BookService {
                 .orElseThrow(() -> new BookException("Libro no encontrado con ID: " + id));
     }
 
-    public Book createBook(Book book) {
-        return bookRepository.save(book);
+    public Book createBook(BookDTO book) {
+        Book bookEntity = new Book(book.getTitle(), book.getAuthor(), book.getIsbn(),
+                book.getPublicationDate(), book.getCategory(), book.getPrice(),
+                book.getStock());
+        return bookRepository.save(bookEntity);
     }
 
     public Book updateBook(Long id, Book bookDetails) {
@@ -44,18 +50,25 @@ public class BookService {
 
     // Aactualizar stock basado en lista de OrderDTO
     @Transactional
-    public void updateStockAfterOrder(List<OrderDTO> orders) {
+    public boolean updateStockAfterOrder(List<OrderDTO> orders) {
         for (OrderDTO order : orders) {
-            Book book = bookRepository.findById(order.getBookId())
-                    .orElseThrow(() -> new BookException("Libro no encontrado - ID: " + order.getBookId()));
-
-            if (book.getStock() < order.getQuantity()) {
-                throw new IllegalStateException("Stock insuficiente para el libro - ID: " + order.getBookId());
+            Optional<Book> bookOpt = bookRepository.findById(order.getBookId());
+            if (bookOpt.isEmpty()) {
+                log.error("Book no encontrado con ID: " + order.getBookId());
+                return false;
             }
-
+            Book book = bookOpt.get();
+            if (book.getStock() < order.getQuantity()) {
+                log.error("Book sin stock ID: " + order.getBookId());
+                return false;
+            } else if (!book.getVisible()) {
+                log.error("Book not visible ID: " + order.getBookId());
+                return false;
+            }
             book.setStock(book.getStock() - order.getQuantity());
             bookRepository.save(book);
         }
+        return true;
     }
 
     public void deleteBook(Long id) {

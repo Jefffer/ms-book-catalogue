@@ -1,5 +1,6 @@
 package com.desarrollo.laboratorio.ms_book_catalogue.controller;
 
+import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.BookDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.OrderDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.entities.Book;
 import com.desarrollo.laboratorio.ms_book_catalogue.service.BookService;
@@ -48,7 +49,7 @@ public class BookController {
 
     // Crear un nuevo libro
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+    public ResponseEntity<Book> createBook(@RequestBody BookDTO book) {
         return ResponseEntity.ok(bookService.createBook(book));
     }
 
@@ -60,9 +61,8 @@ public class BookController {
 
     // Modificar stock -> llamado desde ms-book-payments
     @PostMapping("/update-stock")
-    public ResponseEntity<String> updateStock(@RequestBody List<OrderDTO> orders) {
-        bookService.updateStockAfterOrder(orders);
-        return ResponseEntity.ok("Stock actualizado!!.");
+    public ResponseEntity<Boolean> updateStock(@RequestBody List<OrderDTO> orders) {
+        return ResponseEntity.ok(bookService.updateStockAfterOrder(orders));
     }
 
     // Modificar parcialmente
