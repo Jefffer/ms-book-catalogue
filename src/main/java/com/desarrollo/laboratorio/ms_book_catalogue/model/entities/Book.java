@@ -6,24 +6,27 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
-@Table(
-        name="books"
-)
+@Table(name = "books")
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(length = 100) @NotEmpty
+    @Column(length = 200) @NotEmpty
     private String title;
+
+    @Column(length = 200) @NotEmpty
+    private String author;
 
     @NotEmpty
     private Timestamp publicationDate;
@@ -34,22 +37,13 @@ public class Book {
     @Column(length = 14) @NotEmpty
     private String isbn;
 
-    @NotEmpty
-    @Min(0) @Max(5)
-    private int rating;
+    private Double price;
+
+    private Integer stock;
 
     @NotEmpty
-    private boolean visibility;
+    private Double rating;
 
-    public Book(String title, String category, String isbn) {
-        this.title = title;
-        this.category = category;
-        this.isbn = isbn;
-        this.rating = 0;
-        this.visibility = true;
-        this.publicationDate = new Timestamp(System.currentTimeMillis());
-    }
-
-    public Book() {
-    }
+    @NotEmpty
+    private Boolean visible;
 }
