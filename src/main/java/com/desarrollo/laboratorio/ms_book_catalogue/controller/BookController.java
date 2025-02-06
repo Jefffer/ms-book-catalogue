@@ -4,14 +4,18 @@ import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.BookDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.OrderDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.entities.Book;
 import com.desarrollo.laboratorio.ms_book_catalogue.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/books")
+@Validated
 public class BookController {
 
     @Autowired
@@ -34,41 +38,33 @@ public class BookController {
     public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) String title,
                                                   @RequestParam(required = false) String author,
                                                   @RequestParam(required = false) String category) {
-        List<Book> result;
-        if (title != null) {
-            result = bookService.getAllBooks(false).stream().filter(b -> b.getTitle().contains(title)).toList();
-        } else if (author != null) {
-            result = bookService.getAllBooks(false).stream().filter(b -> b.getAuthor().contains(author)).toList();
-        } else if (category != null) {
-            result = bookService.getAllBooks(false).stream().filter(b -> b.getCategory().contains(category)).toList();
-        } else {
-            result = bookService.getAllBooks(false);
-        }
-        return ResponseEntity.ok(result);
+        List<Book> books = bookService.searchBooks(title, author, category);
+        return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
     }
 
     // Crear un nuevo libro
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody BookDTO book) {
+    public ResponseEntity<Book> createBook(@RequestBody @Valid BookDTO book) {
         return ResponseEntity.ok(bookService.createBook(book));
     }
 
     // Modificar completamente un libro
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody @Valid Book book) {
         return ResponseEntity.ok(bookService.updateBook(id, book));
     }
 
     // Modificar stock -> llamado desde ms-book-payments
     @PostMapping("/update-stock")
-    public ResponseEntity<Boolean> updateStock(@RequestBody List<OrderDTO> orders) {
-        return ResponseEntity.ok(bookService.updateStockAfterOrder(orders));
+    public ResponseEntity<Boolean> updateStock(@RequestBody @Valid List<OrderDTO> orders) {
+        boolean result = bookService.updateStockAfterOrder(orders);
+        return result ? ResponseEntity.ok(true) : ResponseEntity.badRequest().build();
     }
 
     // Modificar parcialmente
     @PatchMapping("/{id}")
-    public ResponseEntity<Book> partialUpdateBook(@PathVariable Long id, @RequestBody Book book) {
-        return ResponseEntity.ok(bookService.updateBook(id, book));
+    public ResponseEntity<Book> partialUpdateBook(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        return ResponseEntity.ok(bookService.partialUpdateBook(id, updates));
     }
 
     // Eliminar un libro

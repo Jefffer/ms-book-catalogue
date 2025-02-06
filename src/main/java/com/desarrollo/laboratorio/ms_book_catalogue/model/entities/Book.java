@@ -34,7 +34,7 @@ public class Book {
     @Column(length = 20) @NotEmpty
     private String category;
 
-    @Column(length = 14) @NotEmpty
+    @Column(length = 14, unique = true) @NotEmpty
     private String isbn;
 
     private Double price;
