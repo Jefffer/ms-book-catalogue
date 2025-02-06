@@ -14,4 +14,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByIsbn(String isbn);
     List<Book> findByRating(Double rating);
     List<Book> findByVisibleTrue(); // Libros visibles
+
+    boolean existsByIsbn(String isbn);
 }

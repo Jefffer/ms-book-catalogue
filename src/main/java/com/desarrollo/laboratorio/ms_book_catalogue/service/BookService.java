@@ -8,8 +8,10 @@ import com.desarrollo.laboratorio.ms_book_catalogue.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -29,6 +31,9 @@ public class BookService {
     }
 
     public Book createBook(BookDTO book) {
+        if(bookRepository.existsByIsbn(book.getIsbn())) {
+            throw new BookException("Libro con ISBN ya existe: " + book.getIsbn());
+        }
         Book bookEntity = new Book(book.getTitle(), book.getAuthor(), book.getIsbn(),
                 book.getPublicationDate(), book.getCategory(), book.getPrice(),
                 book.getStock());
@@ -48,29 +53,41 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    // Aactualizar stock basado en lista de OrderDTO
+    // Actualizar stock basado en lista de OrderDTO
     @Transactional
     public boolean updateStockAfterOrder(List<OrderDTO> orders) {
         for (OrderDTO order : orders) {
-            Optional<Book> bookOpt = bookRepository.findById(order.getBookId());
-            if (bookOpt.isEmpty()) {
-                log.error("Libro no encontrado con ID: " + order.getBookId());
-                return false;
-            }
-            Book book = bookOpt.get();
+            Book book = bookRepository.findById(order.getBookId()).orElseThrow(()->
+                    new BookException("Libro no encontrado con ID: " + order.getBookId()));
             if (book.getStock() < order.getQuantity()) {
-                log.error("Libro sin stock ID: " + order.getBookId());
-                return false;
+                throw new BookException("Libro sin stock ID: " + order.getBookId());
             } else if (!book.getVisible()) {
-                log.error("Libro no visible ID: " + order.getBookId());
-                return false;
+                throw new BookException("Libro no visible ID: " + order.getBookId());
             }
             book.setStock(book.getStock() - order.getQuantity());
             bookRepository.save(book);
         }
         return true;
     }
-
+    //Actualizar parcialmente un libro
+    @Transactional
+    public Book partialUpdateBook(Long id, Map<String, Object> updates) {
+        Book book = getBookById(id);
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "title" -> book.setTitle((String) value);
+                case "author" -> book.setAuthor((String) value);
+                case "category" -> book.setCategory((String) value);
+                case "isbn" -> book.setIsbn((String) value);
+                case "price" -> book.setPrice((Double) value);
+                case "stock" -> book.setStock((Integer) value);
+                case "rating" -> book.setRating((Double) value);
+                case "visible" -> book.setVisible((Boolean) value);
+                default -> throw new BookException("Campo no válido: " + key);
+            }
+        });
+        return bookRepository.save(book);
+    }
     public void deleteBook(Long id) {
         Book book = getBookById(id);
         bookRepository.delete(book);
@@ -79,4 +96,30 @@ public class BookService {
     public boolean existsById(Long id) {
         return bookRepository.existsById(id);
     }
+
+    public List<Book> searchBooks(String title, String author, String category, String isbn, Double rating) {
+       //Iniciar busqueda con libros visibles
+        List <Book> books = bookRepository.findByVisibleTrue();
+        //Filtrar por título si esta presente
+        if (title != null) {
+         books = books.stream().filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .toList();}
+        //Filtrar por categoria si esta presente
+        if (category != null) {
+            books = books.stream().filter(book -> book.getCategory().toLowerCase().
+                            contains(category.toLowerCase())).toList();}
+        //Filtrar por autor si esta presente
+        if (author != null) {
+            books = books.stream().filter(book -> book.getAuthor().toLowerCase().contains(author.toLowerCase()))
+                    .toList();}
+        //Filtrar por ISBN si esta presente
+        if (isbn != null) {
+            books = books.stream().filter(book -> book.getIsbn().toLowerCase().contains(isbn.toLowerCase()))
+                    .toList();}
+        //Filtrar por rating si esta presente
+        if (rating != null) {
+            books = books.stream().filter(book -> book.getRating().equals(rating)).toList();}
+        return books;
+        }
+
 }
