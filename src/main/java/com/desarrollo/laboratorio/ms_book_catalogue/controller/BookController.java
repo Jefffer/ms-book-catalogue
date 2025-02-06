@@ -37,7 +37,7 @@ public class BookController {
     }
 
     // Buscar libros por atributos (título, autor, etc.)
-    @GetMapping("/search")
+    @GetMapping("/params")
     public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) String title,
                                                   @RequestParam(required = false) String author,
                                                   @RequestParam(required = false) String category,
@@ -60,7 +60,7 @@ public class BookController {
     }
 
     // Modificar stock -> llamado desde ms-book-payments
-    @PostMapping("/update-stock")
+    @PostMapping("/stock")
     public ResponseEntity<String> updateStock(@RequestBody @Valid List<OrderDTO> orders) {
         log.info("UpdateStock");
         boolean result = bookService.updateStockAfterOrder(orders);
