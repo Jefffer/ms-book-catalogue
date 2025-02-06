@@ -39,9 +39,7 @@ public class Book {
 
     private Double price;
 
-    @Min(1)
     private Integer stock;
-
 
     private Double rating;
 

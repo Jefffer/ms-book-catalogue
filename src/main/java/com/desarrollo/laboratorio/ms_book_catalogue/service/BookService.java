@@ -40,7 +40,7 @@ public class BookService {
         return bookRepository.save(bookEntity);
     }
 
-    public Book updateBook(Long id, Book bookDetails) {
+    public Book updateBook(Long id, BookDTO bookDetails) {
         Book book = getBookById(id);
         book.setTitle(bookDetails.getTitle());
         book.setAuthor(bookDetails.getAuthor());
@@ -48,8 +48,8 @@ public class BookService {
         book.setIsbn(bookDetails.getIsbn());
         book.setPrice(bookDetails.getPrice());
         book.setStock(bookDetails.getStock());
-        book.setRating(bookDetails.getRating());
         book.setVisible(bookDetails.getVisible());
+        book.setRating(bookDetails.getRating());
         return bookRepository.save(book);
     }
 
@@ -102,23 +102,23 @@ public class BookService {
         List <Book> books = bookRepository.findByVisibleTrue();
         //Filtrar por título si esta presente
         if (title != null) {
-         books = books.stream().filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
+         books = books.stream().filter(book -> book.getTitle() != null && book.getTitle().toLowerCase().contains(title.toLowerCase()))
                 .toList();}
         //Filtrar por categoria si esta presente
         if (category != null) {
-            books = books.stream().filter(book -> book.getCategory().toLowerCase().
+            books = books.stream().filter(book -> book.getCategory() != null && book.getCategory().toLowerCase().
                             contains(category.toLowerCase())).toList();}
         //Filtrar por autor si esta presente
         if (author != null) {
-            books = books.stream().filter(book -> book.getAuthor().toLowerCase().contains(author.toLowerCase()))
+            books = books.stream().filter(book -> book.getAuthor()!=null && book.getAuthor().toLowerCase().contains(author.toLowerCase()))
                     .toList();}
         //Filtrar por ISBN si esta presente
         if (isbn != null) {
-            books = books.stream().filter(book -> book.getIsbn().toLowerCase().contains(isbn.toLowerCase()))
+            books = books.stream().filter(book -> book.getIsbn() != null && book.getIsbn().toLowerCase().contains(isbn.toLowerCase()))
                     .toList();}
         //Filtrar por rating si esta presente
         if (rating != null) {
-            books = books.stream().filter(book -> book.getRating().equals(rating)).toList();}
+            books = books.stream().filter(book -> book.getRating()!= null && book.getRating().equals(rating)).toList();}
         return books;
         }
 

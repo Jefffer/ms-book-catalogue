@@ -5,6 +5,7 @@ import com.desarrollo.laboratorio.ms_book_catalogue.model.dto.OrderDTO;
 import com.desarrollo.laboratorio.ms_book_catalogue.model.entities.Book;
 import com.desarrollo.laboratorio.ms_book_catalogue.service.BookService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,8 +17,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/books")
 @Validated
+@Slf4j
 public class BookController {
 
+    public static final String OK = "OK";
     @Autowired
     private BookService bookService;
 
@@ -52,15 +55,16 @@ public class BookController {
 
     // Modificar completamente un libro
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody @Valid Book book) {
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody @Valid BookDTO book) {
         return ResponseEntity.ok(bookService.updateBook(id, book));
     }
 
     // Modificar stock -> llamado desde ms-book-payments
     @PostMapping("/update-stock")
-    public ResponseEntity<Boolean> updateStock(@RequestBody @Valid List<OrderDTO> orders) {
+    public ResponseEntity<String> updateStock(@RequestBody @Valid List<OrderDTO> orders) {
+        log.info("UpdateStock");
         boolean result = bookService.updateStockAfterOrder(orders);
-        return result ? ResponseEntity.ok(true) : ResponseEntity.badRequest().build();
+        return result ? ResponseEntity.ok(OK) : ResponseEntity.badRequest().build();
     }
 
     // Modificar parcialmente
