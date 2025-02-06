@@ -93,9 +93,6 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    public boolean existsById(Long id) {
-        return bookRepository.existsById(id);
-    }
 
     public List<Book> searchBooks(String title, String author, String category, String isbn, Double rating) {
        //Iniciar busqueda con libros visibles

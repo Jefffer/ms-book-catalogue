@@ -80,9 +80,4 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    // Verificar si un libro existe (para validación en `ms-books-payments`)
-    @GetMapping("/{id}/exists")
-    public ResponseEntity<Boolean> existsById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookService.existsById(id));
-    }
 }
