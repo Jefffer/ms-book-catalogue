@@ -8,6 +8,7 @@ import com.desarrollo.laboratorio.ms_book_catalogue.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
@@ -96,15 +97,29 @@ public class BookService {
         return bookRepository.existsById(id);
     }
 
-    public List<Book> searchBooks(String title, String author, String category) {
+    public List<Book> searchBooks(String title, String author, String category, String isbn, Double rating) {
+       //Iniciar busqueda con libros visibles
+        List <Book> books = bookRepository.findByVisibleTrue();
+        //Filtrar por título si esta presente
         if (title != null) {
-            return bookRepository.findByTitleContainingIgnoreCase(title);
-        } else if (author != null) {
-            return bookRepository.findByAuthorContainingIgnoreCase(author);
-        } else if (category != null) {
-            return bookRepository.findByCategoryContainingIgnoreCase(category);
-        } else {
-            return bookRepository.findByVisibleTrue();
+         books = books.stream().filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .toList();}
+        //Filtrar por categoria si esta presente
+        if (category != null) {
+            books = books.stream().filter(book -> book.getCategory().toLowerCase().
+                            contains(category.toLowerCase())).toList();}
+        //Filtrar por autor si esta presente
+        if (author != null) {
+            books = books.stream().filter(book -> book.getAuthor().toLowerCase().contains(author.toLowerCase()))
+                    .toList();}
+        //Filtrar por ISBN si esta presente
+        if (isbn != null) {
+            books = books.stream().filter(book -> book.getIsbn().toLowerCase().contains(isbn.toLowerCase()))
+                    .toList();}
+        //Filtrar por rating si esta presente
+        if (rating != null) {
+            books = books.stream().filter(book -> book.getRating().equals(rating)).toList();}
+        return books;
         }
-    }
+
 }
