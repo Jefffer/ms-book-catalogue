@@ -43,6 +43,7 @@ public class Book {
 
     private Double rating;
 
+    private String cover;
 
     private Boolean visible;
 

@@ -21,5 +21,6 @@ public class BookDTO {
     private int stock;
     @Min(0) @Max(5)
     private Double rating;
+    private String cover;
     private Boolean visible;
 }
